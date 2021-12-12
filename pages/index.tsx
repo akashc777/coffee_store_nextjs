@@ -14,7 +14,6 @@ const Home: NextPage = () => {
                 <title>Coffee Connoisseur</title>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-
             <main className={styles.main}>
                 <Banner
                     buttonText="View store nearby"

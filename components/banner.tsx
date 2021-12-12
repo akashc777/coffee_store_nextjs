@@ -1,3 +1,4 @@
+import type { NextPage } from "next";
 import styles from "./banner.module.css";
 
 type Props = {
@@ -5,7 +6,7 @@ type Props = {
     handleOnClick: () => void;
 };
 
-const Banner = (props: Props) => {
+const Banner:NextPage<Props>  = (props: Props) => {
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>
