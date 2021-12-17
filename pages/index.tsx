@@ -19,6 +19,13 @@ const Home: NextPage = () => {
                     buttonText="View store nearby"
                     handleOnClick={handleOnBannerBtnClick}
                 />
+                <div className={styles.heroImage}>
+                    <Image
+                        src="/static/hero-image.png"
+                        width={700}
+                        height={400}
+                    />
+                </div>
             </main>
         </div>
     );
