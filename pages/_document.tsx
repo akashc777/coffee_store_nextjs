@@ -19,19 +19,19 @@ class MyDocument extends Document {
             <Html lang="en">
                 <Head>
                     <link
-                        rel="Preload"
+                        rel="preload"
                         href="/fonts/PlayfairDisplay-Bold.ttf"
                         as="font"
                         crossOrigin="anonymous"
                     />
                     <link
-                        rel="Preload"
+                        rel="preload"
                         href="/fonts/PlayfairDisplay-Regular.ttf"
                         as="font"
                         crossOrigin="anonymous"
                     />
                     <link
-                        rel="Preload"
+                        rel="preload"
                         href="/fonts/PlayfairDisplay-SemiBold.ttf"
                         as="font"
                         crossOrigin="anonymous"
