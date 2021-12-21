@@ -16,10 +16,11 @@
 .heroImage {
     position: absolute;
     top: 0px;
-    z-index: 1;
+    z-index: 0;
 }
 
 .cardLayout {
+    margin-top: rem;
     display: grid;
     grid-template-columns: repeat(1, minmax(0, 1fr));
     column-gap: 1.5rem;
