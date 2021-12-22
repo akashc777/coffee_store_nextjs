@@ -4,10 +4,11 @@ import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import Banner from "../components/banner";
 import Card from "../components/card";
-import coffeeStoresData from "../data/coffee-stores.json";
+import { fetchCoffeeStore } from "../lib/coffee-stores";
+// import coffeeStoresData from "../data/coffee-stores.json";
 
 interface coffeeStore {
-    id: number;
+    fsq_id: number;
     name: string;
     imgUrl: string;
     address: string;
@@ -47,10 +48,13 @@ const Home: NextPage<Props> = ({ coffeeStores }) => {
                                 return (
                                     <Card
                                         name={coffeeStore.name}
-                                        imgUrl={coffeeStore.imgUrl}
-                                        href={`/coffee-store/${coffeeStore.id}`}
+                                        imgUrl={
+                                            coffeeStore.imgUrl ||
+                                            "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
+                                        }
+                                        href={`/coffee-store/${coffeeStore.fsq_id}`}
                                         className={styles.cards}
-                                        key={coffeeStore.id}
+                                        key={coffeeStore.fsq_id}
                                     />
                                 );
                             })}
@@ -63,9 +67,12 @@ const Home: NextPage<Props> = ({ coffeeStores }) => {
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
+
+    const coffeeStoresData = await fetchCoffeeStore();
+    
     return {
         props: {
-            coffeeStores:coffeeStoresData,
+            coffeeStores: coffeeStoresData,
         },
     };
 };
