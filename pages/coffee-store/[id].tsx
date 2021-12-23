@@ -10,20 +10,12 @@ import styles from "../../styles/coffee-store.module.css";
 import cls from "classnames";
 import { fetchCoffeeStore } from "../../lib/coffee-stores";
 
-interface Location {
-    address: string;
-    country: string;
-    cross_street?: string;
-    locality?: string;
-    neighborhood?: Array<string>;
-    postcode: string;
-    region: string;
-}
 interface coffeeStoreData {
-    fsq_id: number;
+    id: string;
+    address: string;
     name: string;
+    neighbourhood: string;
     imgUrl: string;
-    location: Location;
 }
 
 interface coffeeStore {
@@ -40,7 +32,7 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
     if (router.isFallback) {
         return <div>Loading .... </div>;
     }
-    const { name, location, imgUrl } = prop.coffeeStore;
+    const { name, address, neighbourhood, imgUrl } = prop.coffeeStore;
 
     const handleUpvoteButton = () => {
         console.log("handle upvote");
@@ -54,7 +46,7 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
                 <div className={styles.col1}>
                     <div className={styles.backToHomeLink}>
                         <Link href="/" scroll={false}>
-                            Back to home
+                            ← Back to home
                         </Link>
                     </div>
                     <div className={styles.nameWrapper}>
@@ -78,18 +70,16 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
                             width={24}
                             height={24}
                         />
-                        <p className={styles.text}>{location.address}</p>
+                        <p className={styles.text}>{address}</p>
                     </div>
-                    {(location.neighborhood || location.cross_street) && (
+                    {neighbourhood && (
                         <div className={styles.iconWrapper}>
                             <Image
                                 src="/static/icons/nearMe.svg"
                                 width={24}
                                 height={24}
                             />
-                            <p className={styles.text}>
-                                {location.neighborhood || location.cross_street}
-                            </p>
+                            <p className={styles.text}>{neighbourhood}</p>
                         </div>
                     )}
                     <div className={styles.iconWrapper}>
@@ -118,22 +108,26 @@ export const getStaticProps: GetStaticProps = async (context) => {
     const coffeeStoresData = await fetchCoffeeStore();
     return {
         props: {
-            coffeeStore: coffeeStoresData.find((coffeeStore) => {
-                return coffeeStore.fsq_id.toString() === id;
-            }),
+            coffeeStore: coffeeStoresData.find(
+                (coffeeStore: { id: { toString: () => string } }) => {
+                    return coffeeStore.id.toString() === id;
+                }
+            ),
         },
     };
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
     const coffeeStoresData = await fetchCoffeeStore();
-    const paths = coffeeStoresData.map((coffeeStore) => {
-        return {
-            params: {
-                id: coffeeStore.fsq_id.toString(),
-            },
-        };
-    });
+    const paths = coffeeStoresData.map(
+        (coffeeStore: { id: { toString: () => any } }) => {
+            return {
+                params: {
+                    id: coffeeStore.id.toString(),
+                },
+            };
+        }
+    );
     return {
         paths,
         fallback: true,

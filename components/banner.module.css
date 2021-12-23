@@ -40,6 +40,7 @@
     outline: 0;
     border: 0px;
     border-radius: 1.5rem;
+    /* pointer-events: none; */
 
     padding-top: 1rem /* 16px */;
     padding-bottom: 1rem /* 16px */;
