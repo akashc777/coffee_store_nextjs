@@ -9,6 +9,8 @@ import Head from "next/head";
 import styles from "../../styles/coffee-store.module.css";
 import cls from "classnames";
 import { fetchCoffeeStore } from "../../lib/coffee-stores";
+import { useContext } from "react";
+import StoreContext from "../../store/store-context";
 
 interface coffeeStoreData {
     id: string;
@@ -34,6 +36,10 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
     }
     const { name, address, neighbourhood, imgUrl } = prop.coffeeStore;
 
+    const { dispatch, state } = useContext(StoreContext);
+
+    console.log( { state });
+    
     const handleUpvoteButton = () => {
         console.log("handle upvote");
     };
@@ -106,13 +112,14 @@ export const getStaticProps: GetStaticProps = async (context) => {
     console.log(context);
     const { id } = context.params as IParams;
     const coffeeStoresData = await fetchCoffeeStore();
+    const findCoffeeStoreById = coffeeStoresData.find(
+        (coffeeStore: { id: { toString: () => string } }) => {
+            return coffeeStore.id.toString() === id; //dynamic id
+        }
+    );
     return {
         props: {
-            coffeeStore: coffeeStoresData.find(
-                (coffeeStore: { id: { toString: () => string } }) => {
-                    return coffeeStore.id.toString() === id;
-                }
-            ),
+            coffeeStore: findCoffeeStoreById ? findCoffeeStoreById : {},
         },
     };
 };
