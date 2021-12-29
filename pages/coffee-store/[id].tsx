@@ -10,7 +10,7 @@ import styles from "../../styles/coffee-store.module.css";
 import cls from "classnames";
 import { fetchCoffeeStore } from "../../lib/coffee-stores";
 import { useContext } from "react";
-import StoreContext from "../../store/store-context";
+import {StoreContext} from "../../store/store-context";
 
 interface coffeeStoreData {
     id: string;
@@ -21,6 +21,7 @@ interface coffeeStoreData {
 }
 
 interface coffeeStore {
+    id?:string
     coffeeStore: coffeeStoreData;
 }
 
@@ -34,12 +35,24 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
     if (router.isFallback) {
         return <div>Loading .... </div>;
     }
-    const { name, address, neighbourhood, imgUrl } = prop.coffeeStore;
+   
 
+    // const { dispatch, state } = useContext(StoreContext);
+
+    // console.log( { context: useContext(StoreContext)});
     const { dispatch, state } = useContext(StoreContext);
-
-    console.log( { state });
-    
+    let coffeeStore = prop.coffeeStore;
+    if(Object.keys(coffeeStore).length === 0){
+            
+//
+        const findCoffeeStoreById = state.coffeeStoresState.find(
+            (coffeeStore: { id: { toString: () => string } }) => {
+                return coffeeStore.id.toString() === prop.id; //dynamic id
+            }
+        );
+        coffeeStore = findCoffeeStoreById ? findCoffeeStoreById : {};
+    }
+    const { name, address, neighbourhood, imgUrl } = coffeeStore;
     const handleUpvoteButton = () => {
         console.log("handle upvote");
     };
@@ -119,6 +132,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     );
     return {
         props: {
+            id:findCoffeeStoreById? null:id,
             coffeeStore: findCoffeeStoreById ? findCoffeeStoreById : {},
         },
     };
