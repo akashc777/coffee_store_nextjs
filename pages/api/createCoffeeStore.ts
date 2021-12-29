@@ -1,10 +1,61 @@
-const Airtable = require('airtable');
-Airtable.configure({
-    endpointUrl: 'https://api.airtable.com',
-    apiKey: process.env.AIRTABLE_API_KEY
-});
-const base = Airtable.base(process.env.AIRTABLE_BASE_KEY);
+import type { NextApiRequest, NextApiResponse } from "next";
 
-const table = base('coffee-stores');
+import {
+    table,
+    getMinifiedRecords,
+    findRecordByFilter,
+} from "../../lib/airtable";
+type Data = {
+    message: string;
+};
 
-console.log({table});
+const createCoffeeStore = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
+    if (req.method === "POST") {
+        //find a record
+
+        const { id, name, neighbourhood, address, imgUrl, voting } = req.body;
+
+        try {
+            if (id) {
+                const records = await findRecordByFilter(id);
+
+                if (records.length !== 0) {
+                    res.json(records);
+                } else {
+                    //create a record
+                    if (name) {
+                        const createRecords = await table.create([
+                            {
+                                fields: {
+                                    id,
+                                    name,
+                                    address,
+                                    neighbourhood,
+                                    voting,
+                                    imgUrl,
+                                },
+                            },
+                        ]);
+
+                        const records = getMinifiedRecords(createRecords);
+                        res.json(records);
+                    } else {
+                        res.status(400);
+                        res.json({ message: "Id or name is missing" });
+                    }
+                }
+            } else {
+                res.status(400);
+                res.json({ message: "Id is missing" });
+            }
+        } catch (err) {
+            console.error("Error creating or finding a store", err);
+            res.status(500);
+            res.json({ message: "Error creating or finding a store", err });
+        }
+    }else{
+        res.status(200).json({ message: "This endpoint is for only post req" });
+    }
+};
+
+export default createCoffeeStore;
