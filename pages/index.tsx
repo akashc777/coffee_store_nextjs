@@ -21,23 +21,23 @@ interface coffeeStore {
 interface Props {
     coffeeStores: Array<coffeeStore>;
 }
-const Home: NextPage<Props> = ({ coffeeStores }) => {
+const Home: NextPage<Props> = (props) => {
     const {
         handleTrackLocation,
         locationErrorMsg,
         isFindingLocation,
     } = useTrackLocation();
 
-    // const [coffeeStoresState, setCoffeeStore] = useState([]);
+    // const [coffeeStores, setCoffeeStore] = useState([]);
     const [coffeeStoresError, setCoffeeStoreError] = useState(null);
 
     const { dispatch, state } = useContext(StoreContext);
 
 
-    const {coffeeStoresState, latLong} = state;
+    const {coffeeStores, latLong} = state;
     console.log({ latLong, locationErrorMsg });
 
-    console.log({coffeeStoresState});
+    console.log({coffeeStores});
     
     useEffect(async () => {
         if (latLong) {
@@ -45,7 +45,7 @@ const Home: NextPage<Props> = ({ coffeeStores }) => {
                 const response = await fetch(
                     `/api/getCoffeeStoresByLocation?latLong=${latLong}&limit=30`
                   );
-                const coffeeStoresData = await response.json();
+                const coffeeStores = await response.json();
                 // console.log({coffeeStoresData});
 
                 // setCoffeeStore(coffeeStoresData);
@@ -53,7 +53,7 @@ const Home: NextPage<Props> = ({ coffeeStores }) => {
                 dispatch({
                     type: ACTION_TYPES.SET_COFFEE_STORES,
                     payload: {
-                        coffeeStoresState:coffeeStoresData
+                        coffeeStores,
                     },
                 })
             } catch (error) {
@@ -93,11 +93,11 @@ const Home: NextPage<Props> = ({ coffeeStores }) => {
                         height={400}
                     />
                 </div>
-                {coffeeStoresState.length > 0 && (
+                {coffeeStores.length > 0 && (
                     <div className={styles.sectionWrapper}>
                         <h2 className={styles.heading2}>Stores near me</h2>
                         <div className={styles.cardLayout}>
-                            {coffeeStoresState.map((coffeeStore) => {
+                            {coffeeStores.map((coffeeStore) => {
                                 return (
                                     <Card
                                         key={coffeeStore.id}
@@ -113,11 +113,11 @@ const Home: NextPage<Props> = ({ coffeeStores }) => {
                         </div>
                     </div>
                 )}
-                {coffeeStores.length > 0 && (
+                {props.coffeeStores.length > 0 && (
                     <>
                         <h2 className={styles.heading2}>Bangalore stores</h2>
                         <div className={styles.cardLayout}>
-                            {coffeeStores.map((coffeeStore) => {
+                            {props.coffeeStores.map((coffeeStore) => {
                                 return (
                                     <Card
                                         name={coffeeStore.name}

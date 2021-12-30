@@ -25,7 +25,8 @@ const getUrlForCoffeeStores = (
 };
 
 export const fetchCoffeeStore = async (
-    latLong: string = "13.091369615746105,77.54422757036656",limit = 6
+    latLong: string = "13.091369615746105,77.54422757036656",
+    limit = 6
 ) => {
     const photos = await getListOfCoffeeStorePhotos();
     console.log("photos", photos);
@@ -38,8 +39,7 @@ export const fetchCoffeeStore = async (
         },
     };
 
-    console.log({fs_key:process.env.NEXT_PUBLIC_FS_API_KEY});
-    
+    console.log({ fs_key: process.env.NEXT_PUBLIC_FS_API_KEY });
 
     const response = await fetch(
         getUrlForCoffeeStores(
@@ -51,15 +51,17 @@ export const fetchCoffeeStore = async (
     );
 
     const data = await response.json();
-    console.log({data});
-    
+    console.log({ data });
+
     return data.results.map((venue: any, idx: number) => {
+        const neighbourhood =
+            venue.location.neighborhood || venue.location.crossStreet || "";
         return {
             id: venue.fsq_id,
             address: venue.location.address || "",
             name: venue.name,
-            neighbourhood:
-                venue.location.neighborhood || venue.location.crossStreet || "",
+            neighbourhood: neighbourhood.toString(),
+
             imgUrl: photos[idx],
         };
     });

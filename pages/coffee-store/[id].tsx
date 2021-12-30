@@ -9,8 +9,9 @@ import Head from "next/head";
 import styles from "../../styles/coffee-store.module.css";
 import cls from "classnames";
 import { fetchCoffeeStore } from "../../lib/coffee-stores";
-import { useContext } from "react";
-import {StoreContext} from "../../store/store-context";
+import { useContext, useEffect, useState } from "react";
+import { StoreContext } from "../../store/store-context";
+import useSWR from "swr";
 
 interface coffeeStoreData {
     id: string;
@@ -21,7 +22,7 @@ interface coffeeStoreData {
 }
 
 interface coffeeStore {
-    id?:string
+    id?: string;
     coffeeStore: coffeeStoreData;
 }
 
@@ -35,27 +36,101 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
     if (router.isFallback) {
         return <div>Loading .... </div>;
     }
-   
 
+    const id = router.query.id;
     // const { dispatch, state } = useContext(StoreContext);
 
     // console.log( { context: useContext(StoreContext)});
-    const { dispatch, state } = useContext(StoreContext);
-    let coffeeStore = prop.coffeeStore;
-    if(Object.keys(coffeeStore).length === 0){
+    const [coffeeStore, setCoffeeStore] = useState(prop.coffeeStore);
+    const {
+        state: { coffeeStores },
+    } = useContext(StoreContext);
+    const handleCreateCoffeeStore = async (coffeeStore) => {
+        try {
+            const { id, name, voting, imgUrl, neighbourhood, address } =
+                coffeeStore;
+            const response = await fetch("/api/createCoffeeStore", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id,
+                    name,
+                    voting: 0,
+                    imgUrl,
+                    neighbourhood: neighbourhood || "",
+                    address: address || "",
+                }),
+            });
+
+            const dbCoffeeStore = await response.json();
+            console.log({dbCoffeeStore});
             
-//
-        const findCoffeeStoreById = state.coffeeStoresState.find(
-            (coffeeStore: { id: { toString: () => string } }) => {
-                return coffeeStore.id.toString() === prop.id; //dynamic id
-            }
-        );
-        coffeeStore = findCoffeeStoreById ? findCoffeeStoreById : {};
-    }
-    const { name, address, neighbourhood, imgUrl } = coffeeStore;
-    const handleUpvoteButton = () => {
-        console.log("handle upvote");
+        } catch (err) {
+            console.error("Error creating coffee store", err);
+        }
     };
+
+    useEffect(() => {
+        if (Object.keys(prop.coffeeStore).length === 0) {
+            if (coffeeStores.length > 0) {
+                const coffeeStoreFromContext = coffeeStores.find(
+                    (coffeeStore) => {
+                        return coffeeStore.id.toString() === id; //dynamic id
+                    }
+                );
+
+                if (coffeeStoreFromContext) {
+                    setCoffeeStore(coffeeStoreFromContext);
+                    handleCreateCoffeeStore(coffeeStoreFromContext);
+                }
+            }
+        } else {
+            // SSG
+            handleCreateCoffeeStore(prop.coffeeStore);
+        }
+    }, [prop.id, prop, prop.coffeeStore]);
+
+    const { name, address, neighbourhood, imgUrl } = coffeeStore;
+    const [votingCount, setVotingCount] = useState(0);
+
+    const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${prop.id}`);
+    if (error) {
+        return <div>Something went wrong retrieving coffee store page</div>;
+    }
+    
+    useEffect(() => {
+        if (data && data.length > 0) {
+            setCoffeeStore(data[0]);
+
+            setVotingCount(data[0].voting);
+        }
+    }, [data]);
+
+    const handleUpvoteButton = async () => {
+        try {
+            const response = await fetch("/api/favouriteCoffeeStoreById", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id:prop.id,
+                }),
+            });
+
+            const dbCoffeeStore = await response.json();
+
+            if (dbCoffeeStore && dbCoffeeStore.length > 0) {
+                let count = votingCount + 1;
+                setVotingCount(count);
+            }
+        } catch (err) {
+            console.error("Error upvoting the coffee store", err);
+        }
+    };
+
     return (
         <div className={styles.layout}>
             <Head>
@@ -107,7 +182,7 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
                             width={24}
                             height={24}
                         />
-                        <p className={styles.text}>1</p>
+                        <p className={styles.text}>{votingCount}</p>
                     </div>
                     <button
                         className={styles.upvoteButton}
@@ -132,7 +207,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     );
     return {
         props: {
-            id:findCoffeeStoreById? null:id,
+            id,
             coffeeStore: findCoffeeStoreById ? findCoffeeStoreById : {},
         },
     };
@@ -156,5 +231,3 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export default CoffeeStore;
-
-//fsq38u+2ZcJC3VMwemZHGOqgcDqkACmyER9oRJX6O9+81Jk=
