@@ -94,8 +94,10 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
 
     const { name, address, neighbourhood, imgUrl } = coffeeStore;
     const [votingCount, setVotingCount] = useState(0);
-
-    const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${prop.id}`);
+    const fetcher = (url) => fetch(url).then((res) => res.json());
+    const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`,fetcher);
+    console.log({data,id, error});
+    
     if (error) {
         return <div>Something went wrong retrieving coffee store page</div>;
     }
