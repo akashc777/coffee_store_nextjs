@@ -65,7 +65,7 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
             });
 
             const dbCoffeeStore = await response.json();
-            console.log({dbCoffeeStore});
+            // console.log({dbCoffeeStore});
             
         } catch (err) {
             console.error("Error creating coffee store", err);
@@ -94,6 +94,7 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
 
     const { name, address, neighbourhood, imgUrl } = coffeeStore;
     const [votingCount, setVotingCount] = useState(0);
+    const [upvoting, setupvoting] = useState(false);
     const fetcher = (url) => fetch(url).then((res) => res.json());
     const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`,fetcher);
     console.log({data,id, error});
@@ -111,6 +112,7 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
     }, [data]);
 
     const handleUpvoteButton = async () => {
+        setupvoting(true);
         try {
             const response = await fetch("/api/favouriteCoffeeStoreById", {
                 method: "PUT",
@@ -131,6 +133,7 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
         } catch (err) {
             console.error("Error upvoting the coffee store", err);
         }
+        setupvoting(false);
     };
 
     return (
@@ -188,9 +191,9 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
                     </div>
                     <button
                         className={styles.upvoteButton}
-                        onClick={handleUpvoteButton}
+                        onClick={!upvoting ? handleUpvoteButton:()=>{}}
                     >
-                        Up vote!
+                        {upvoting ? "Pleas wait !" : "Upvote !"}
                     </button>
                 </div>
             </div>
@@ -199,7 +202,7 @@ const CoffeeStore: NextPage<coffeeStore> = (prop) => {
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-    console.log(context);
+    // console.log(context);
     const { id } = context.params as IParams;
     const coffeeStoresData = await fetchCoffeeStore();
     const findCoffeeStoreById = coffeeStoresData.find(

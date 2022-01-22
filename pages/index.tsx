@@ -35,9 +35,9 @@ const Home: NextPage<Props> = (props) => {
 
 
     const {coffeeStores, latLong} = state;
-    console.log({ latLong, locationErrorMsg });
+    // console.log({ latLong, locationErrorMsg });
 
-    console.log({coffeeStores});
+    // console.log({coffeeStores});
     
     useEffect(async () => {
         if (latLong) {
@@ -64,7 +64,7 @@ const Home: NextPage<Props> = (props) => {
     }, [latLong]);
 
     const handleOnBannerBtnClick = () => {
-        console.log("Hi banner button");
+        // console.log("Hi banner button");
         handleTrackLocation();
     };
     return (
